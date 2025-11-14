@@ -7,29 +7,53 @@ const CartItem = ({ onContinueShopping }) => {
   const cart = useSelector(state => state.cart.items);
   const dispatch = useDispatch();
 
-  // Calculate total amount for all products in the cart
+  // Calcule le montant total pour tous les produits dans le panier
   const calculateTotalAmount = () => {
- 
+    // Somme de (prix * quantité) pour chaque article
+    const total = cart.reduce((sum, it) => {
+      const price = parseFloat(String(it.cost).replace(/[^0-9.-]+/g, '')) || 0;
+      const qty = Number(it.quantity) || 0;
+      return sum + price * qty;
+    }, 0);
+    return total.toFixed(2);
   };
 
   const handleContinueShopping = (e) => {
-   
+    e.preventDefault();
+    if (typeof onContinueShopping === 'function') onContinueShopping();
   };
 
 
 
   const handleIncrement = (item) => {
+    const qty = Number(item.quantity) || 0;
+    dispatch(updateQuantity({ name: item.name, quantity: qty + 1 }));
   };
 
   const handleDecrement = (item) => {
-   
+    const qty = Number(item.quantity) || 0;
+    if (qty > 1) {
+      dispatch(updateQuantity({ name: item.name, quantity: qty - 1 }));
+    } else {
+      // Si la quantité passe à 0, supprime l'article
+      dispatch(removeItem(item.name));
+    }
   };
 
   const handleRemove = (item) => {
+    dispatch(removeItem(item.name));
+  };
+
+  const handleCheckoutShopping = (e) => {
+    e.preventDefault();
+    alert('Functionality to be added for future reference');
   };
 
   // Calculate total cost based on quantity for an item
   const calculateTotalCost = (item) => {
+    const price = parseFloat(String(item.cost).replace(/[^0-9.-]+/g, '')) || 0;
+    const qty = Number(item.quantity) || 0;
+  return (price * qty).toFixed(2);
   };
 
   return (
@@ -57,7 +81,7 @@ const CartItem = ({ onContinueShopping }) => {
       <div className="continue_shopping_btn">
         <button className="get-started-button" onClick={(e) => handleContinueShopping(e)}>Continue Shopping</button>
         <br />
-        <button className="get-started-button1">Checkout</button>
+        <button className="get-started-button1" onClick={(e) => handleCheckoutShopping(e)}>Checkout</button>
       </div>
     </div>
   );
